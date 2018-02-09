@@ -29,9 +29,6 @@ fn run(opt: &Opt) -> Result<(), Error> {
     walker.set_sorting(git2::SORT_TOPOLOGICAL);
     walker.push_head()?;
 
-    let dir = TempDir::new("git-rpm-changelog")?;
-    let srepo = Repository::clone(repo.path().to_str().unwrap(), &dir)?;
-    let workdir = srepo.workdir().unwrap();
     let spec = format!(
         "{}.spec",
         repo.workdir()
@@ -45,10 +42,17 @@ fn run(opt: &Opt) -> Result<(), Error> {
         let oid = id?;
         let commit = repo.find_commit(oid).unwrap();
 
-        srepo.set_head_detached(oid)?;
-        srepo.checkout_head(Some(&mut git2::build::CheckoutBuilder::new()
-            .force()
-            .remove_untracked(true)))?;
+        let worktree = TempDir::new("git-rpm-changelog")?;
+        let workrepo = Repository::open(&opt.path)?;
+        workrepo.set_workdir(worktree.path(), false)?;
+        let object = workrepo.find_object(oid, Some(git2::ObjectType::Commit))?;
+        workrepo.checkout_tree(
+            &object,
+            Some(&mut git2::build::CheckoutBuilder::new()
+                .force()
+                .update_index(false)),
+        )?;
+        let workdir = workrepo.workdir().unwrap();
 
         let author = commit.author();
         let atime = author.when();
@@ -83,7 +87,6 @@ fn run(opt: &Opt) -> Result<(), Error> {
 
         println!("{}\n{}\n", chlog_header, chlog_entry);
     }
-    dir.close()?;
 
     Ok(())
 }
