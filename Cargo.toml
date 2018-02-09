@@ -1,0 +1,12 @@
+[package]
+name = "git-rpm-changelog"
+version = "0.0.1-dev"
+authors = ["Igor Gnatenko <ignatenkobrain@fedoraproject.org>"]
+
+[dependencies]
+chrono = "0.4"
+failure = "0.1"
+git2 = "0.6"
+structopt = "0.1"
+structopt-derive = "0.1"
+tempdir = "0.3"
