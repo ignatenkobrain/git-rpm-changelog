@@ -40,7 +40,6 @@ fn run(opt: &Opt) -> Result<(), Error> {
     );
     for id in walker {
         let oid = id?;
-        let commit = repo.find_commit(oid).unwrap();
 
         let worktree = TempDir::new("git-rpm-changelog")?;
         let workrepo = Repository::open(&opt.path)?;
@@ -54,6 +53,7 @@ fn run(opt: &Opt) -> Result<(), Error> {
         )?;
         let workdir = workrepo.workdir().unwrap();
 
+        let commit = object.as_commit().unwrap();
         let author = commit.author();
         let atime = author.when();
         let datetime =
