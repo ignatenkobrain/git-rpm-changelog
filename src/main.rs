@@ -18,7 +18,8 @@ use tempdir::TempDir;
 #[derive(StructOpt, Debug)]
 #[structopt(name = "git-rpm-changelog")]
 struct Opt {
-    #[structopt(help = "Path to git repository", parse(from_os_str))] path: PathBuf,
+    #[structopt(help = "Path to git repository", parse(from_os_str))]
+    path: PathBuf,
 }
 
 fn run(opt: &Opt) -> Result<(), Error> {
