@@ -6,6 +6,7 @@ extern crate structopt;
 #[macro_use]
 extern crate structopt_derive;
 extern crate tempdir;
+extern crate textwrap;
 
 use std::path::PathBuf;
 use std::process::{self, Command};
@@ -16,6 +17,7 @@ use git2::Repository;
 use rayon::iter::{IntoParallelIterator, ParallelIterator};
 use structopt::StructOpt;
 use tempdir::TempDir;
+use textwrap::Wrapper;
 
 #[derive(StructOpt, Debug)]
 #[structopt(name = "git-rpm-changelog")]
@@ -42,6 +44,10 @@ fn run(opt: &Opt) -> Result<(), Error> {
             .to_str()
             .unwrap()
     );
+    let chlog_entry_wrapper = Wrapper::new(80)
+        .initial_indent("- ")
+        .subsequent_indent("  ")
+        .break_words(false);
     let changelog = walker
         .into_par_iter()
         .map(|oid| {
@@ -87,7 +93,7 @@ fn run(opt: &Opt) -> Result<(), Error> {
             } else {
                 eprintln!("{}", String::from_utf8_lossy(&output.stderr));
             }
-            let chlog_entry = format!("- {}", commit.summary().unwrap());
+            let chlog_entry = chlog_entry_wrapper.fill(commit.summary().unwrap());
 
             Ok(format!("{}\n{}", chlog_header, chlog_entry))
         })
