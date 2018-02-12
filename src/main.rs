@@ -7,8 +7,11 @@ extern crate structopt;
 extern crate structopt_derive;
 extern crate tempdir;
 
+use std::fs::File;
+use std::io::Write;
 use std::path::PathBuf;
 use std::process::{self, Command};
+use std::str;
 
 use chrono::{FixedOffset, TimeZone};
 use failure::Error;
@@ -53,15 +56,24 @@ fn run(opt: &Opt) -> Result<(), Error> {
                 return Ok(None);
             }
 
+            let blob = workrepo.find_blob(entry.unwrap().id())?;
+            let content = blob.content();
+
             let worktree = TempDir::new("git-rpm-changelog")?;
             workrepo.set_workdir(worktree.path(), false)?;
-            workrepo.checkout_tree(
-                commit.as_object(),
-                Some(&mut git2::build::CheckoutBuilder::new()
-                    .force()
-                    .update_index(false)),
-            )?;
             let workdir = workrepo.workdir().unwrap();
+            let spec_path = workdir.join(&spec);
+            if str::from_utf8(content)?.contains("%include") {
+                workrepo.checkout_tree(
+                    commit.as_object(),
+                    Some(&mut git2::build::CheckoutBuilder::new()
+                        .force()
+                        .update_index(false)),
+                )?;
+            } else {
+                let mut spec_file = File::create(spec_path)?;
+                spec_file.write_all(content)?;
+            }
 
             let author = commit.author();
             let atime = author.when();
