@@ -45,10 +45,16 @@ fn run(opt: &Opt) -> Result<(), Error> {
     let changelog = walker
         .into_par_iter()
         .map(|oid| {
-            let worktree = TempDir::new("git-rpm-changelog")?;
             let workrepo = Repository::open(&opt.path)?;
-            workrepo.set_workdir(worktree.path(), false)?;
             let commit = workrepo.find_commit(oid)?;
+            let tree = commit.tree()?;
+            let entry = tree.get_name(&spec);
+            if entry.is_none() {
+                return Ok(None);
+            }
+
+            let worktree = TempDir::new("git-rpm-changelog")?;
+            workrepo.set_workdir(worktree.path(), false)?;
             workrepo.checkout_tree(
                 commit.as_object(),
                 Some(&mut git2::build::CheckoutBuilder::new()
@@ -88,8 +94,10 @@ fn run(opt: &Opt) -> Result<(), Error> {
             }
             let chlog_entry = format!("- {}", commit.summary().unwrap());
 
-            Ok(format!("{}\n{}", chlog_header, chlog_entry))
+            Ok(Some(format!("{}\n{}", chlog_header, chlog_entry)))
         })
+        .filter(|c| c.as_ref().map(|c| c.is_some()).unwrap_or(true))
+        .map(|c| c.map(|c| c.unwrap()))
         .collect::<Result<Vec<_>, Error>>()?;
 
     for entry in changelog {
