@@ -48,16 +48,15 @@ fn run(opt: &Opt) -> Result<(), Error> {
             let worktree = TempDir::new("git-rpm-changelog")?;
             let workrepo = Repository::open(&opt.path)?;
             workrepo.set_workdir(worktree.path(), false)?;
-            let object = workrepo.find_object(oid, Some(git2::ObjectType::Commit))?;
+            let commit = workrepo.find_commit(oid)?;
             workrepo.checkout_tree(
-                &object,
+                commit.as_object(),
                 Some(&mut git2::build::CheckoutBuilder::new()
                     .force()
                     .update_index(false)),
             )?;
             let workdir = workrepo.workdir().unwrap();
 
-            let commit = object.as_commit().unwrap();
             let author = commit.author();
             let atime = author.when();
             let datetime =
