@@ -108,8 +108,13 @@ fn run(opt: &Opt) -> Result<(), Error> {
 
             Ok(Some(format!("{}\n{}", chlog_header, chlog_entry)))
         })
-        .filter(|c| c.as_ref().map(|c| c.is_some()).unwrap_or(true))
-        .map(|c| c.map(|c| c.unwrap()))
+        .filter_map(|r| {
+            match r {
+                Ok(Some(x)) => Some(Ok(x)),
+                Ok(None) => None,
+                Err(e) => Some(Err(e)),
+            }
+        })
         .collect::<Result<Vec<_>, Error>>()?;
 
     for entry in changelog {
