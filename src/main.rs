@@ -27,7 +27,9 @@ struct Opt {
     path: PathBuf,
 }
 
-fn run(opt: &Opt) -> Result<(), Error> {
+fn main() -> Result<(), Error> {
+    let opt = Opt::from_args();
+
     let repo = Repository::open(&opt.path)?;
     let mut walker = repo.revwalk()?;
 
@@ -122,16 +124,4 @@ fn run(opt: &Opt) -> Result<(), Error> {
     }
 
     Ok(())
-}
-
-fn main() {
-    let opt = Opt::from_args();
-
-    match run(&opt) {
-        Ok(_) => (),
-        Err(e) => {
-            eprintln!("error: {}", e);
-            process::exit(1);
-        }
-    };
 }
