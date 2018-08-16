@@ -10,7 +10,7 @@ extern crate tempdir;
 use std::fs::File;
 use std::io::Write;
 use std::path::PathBuf;
-use std::process::{self, Command};
+use std::process::Command;
 use std::str;
 
 use chrono::{FixedOffset, TimeZone};
@@ -33,7 +33,7 @@ fn main() -> Result<(), Error> {
     let repo = Repository::open(&opt.path)?;
     let mut walker = repo.revwalk()?;
 
-    walker.set_sorting(git2::SORT_TOPOLOGICAL);
+    walker.set_sorting(git2::Sort::TOPOLOGICAL);
     walker.push_head()?;
 
     let walker = walker.collect::<Result<Vec<_>, _>>()?;

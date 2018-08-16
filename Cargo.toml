@@ -6,7 +6,7 @@ authors = ["Igor Gnatenko <ignatenkobrain@fedoraproject.org>"]
 [dependencies]
 chrono = "0.4"
 failure = "0.1"
-git2 = "0.6"
+git2 = "0.7"
 rayon = "1"
 structopt = "0.2"
 structopt-derive = "0.2"
