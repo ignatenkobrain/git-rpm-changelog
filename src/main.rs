@@ -3,7 +3,6 @@ extern crate failure;
 extern crate git2;
 extern crate rayon;
 extern crate structopt;
-#[macro_use]
 extern crate structopt_derive;
 extern crate tempdir;
 
