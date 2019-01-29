@@ -2,6 +2,7 @@
 name = "git-rpm-changelog"
 version = "0.0.1-dev"
 authors = ["Igor Gnatenko <ignatenkobrain@fedoraproject.org>"]
+edition = "2018"
 
 [dependencies]
 chrono = "0.4"

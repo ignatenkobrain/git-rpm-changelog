@@ -1,11 +1,3 @@
-extern crate chrono;
-extern crate failure;
-extern crate git2;
-extern crate rayon;
-extern crate structopt;
-extern crate structopt_derive;
-extern crate tempdir;
-
 use std::fs::File;
 use std::io::Write;
 use std::path::PathBuf;
